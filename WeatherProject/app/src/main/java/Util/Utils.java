@@ -11,6 +11,7 @@ public class Utils {
 
     public static final String BASE_URL = "http://api.openweathermap.org/data/2.5/weather?q=";
     public static final String ICON_URL = "http://api.openweathermap.org/";
+    public static final String KEY_ID = "7c5abf3bdd24a43cff919b58415967e8";
 
     public static JSONObject getObject(String tagName, JSONObject jsonObject) throws JSONException
     {
