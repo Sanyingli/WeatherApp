@@ -1,6 +1,11 @@
 package com.example.lsy.weatherproject;
 
+import android.content.Context;
 import android.graphics.Bitmap;
+import android.location.Location;
+import android.location.LocationManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
@@ -15,6 +20,7 @@ import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.appindexing.Thing;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
 import com.squareup.picasso.Picasso;
 
 import java.text.DateFormat;
@@ -29,7 +35,7 @@ import data.LocationFinder;
 import model.Clouds;
 import model.Weather;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements LocationFinder.LocationDetector {
 
     private TextView cityName;
     private TextView temp;
@@ -42,8 +48,13 @@ public class MainActivity extends AppCompatActivity {
     private TextView sunset;
     private TextView updated;
 
+    private LocationFinder locationFinder;
+    private Location mLocation;
+    private double mLongtitude;
+    private double mLatitude;
+
     Weather weather = new Weather();
-    LocationFinder locationFinder = new LocationFinder();
+
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
      * See https://g.co/AppIndexing/AndroidStudio for more information.
@@ -68,7 +79,20 @@ public class MainActivity extends AppCompatActivity {
         sunset = (TextView) findViewById(R.id.setText);
         updated = (TextView) findViewById(R.id.updateText);
 
-        renderWeatherDate("Spokane,US");
+        if(networkConnected()) {
+
+            getLoction();
+
+            renderWeatherDate("Spokane,US");
+
+        }
+        else
+        {
+            System.out.println("No network connected, please open the connection");
+        }
+
+
+
 
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
@@ -117,18 +141,24 @@ public class MainActivity extends AppCompatActivity {
         client.disconnect();
     }
 
-    private class DownloadImageAsyncTask extends AsyncTask<String, Void, Bitmap> {
-        @Override
-        protected void onPostExecute(Bitmap bitmap) {
-            super.onPostExecute(bitmap);
-        }
+    @Override
+    public void locationFound(Location location) {
+        System.out.println("HAVE FOUND LOCATION");
+        mLocation = location;
 
-        @Override
-        protected Bitmap doInBackground(String... params) {
-            return null;
-        }
+        mLatitude = mLocation.getLatitude();
+        mLongtitude = mLocation.getLongitude();
+        System.out.println("latitude:" + mLatitude);
+        System.out.println("longitude:" + mLongtitude);
 
     }
+
+    @Override
+    public void locationNotFound(LocationFinder.FailureReason failureReason) {
+
+        System.out.println("HAVE NOT FOUND");
+    }
+
 
     private class WeatherTask extends AsyncTask<String, Void, Weather> {
         @Override
@@ -176,5 +206,20 @@ public class MainActivity extends AppCompatActivity {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_menu, menu);
         return true;
+    }
+
+    private boolean networkConnected() {
+        //a connectivity manager instance using the activity's context
+        ConnectivityManager connectivityManager = (ConnectivityManager)
+                getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        //networkInfo was created then isConnected is true
+        return networkInfo != null && networkInfo.isConnected();
+    }
+
+    private void getLoction()
+    {
+        locationFinder = new LocationFinder(this,this);
+        locationFinder.detectLocation();
     }
 }

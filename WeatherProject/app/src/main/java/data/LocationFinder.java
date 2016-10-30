@@ -33,6 +33,7 @@ public class LocationFinder implements LocationListener {
     private Context mContext;
     private LocationDetector mLocationDetector;
 
+
     private final int TIMEOUT_IN_MS = 10000; //10 second timeout
 
     private boolean mIsDetectingLocation = false;
