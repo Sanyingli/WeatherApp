@@ -1,6 +1,7 @@
 package com.example.lsy.weatherproject;
 
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -10,6 +11,10 @@ import android.view.MenuInflater;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.android.gms.appindexing.Action;
+import com.google.android.gms.appindexing.AppIndex;
+import com.google.android.gms.appindexing.Thing;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.squareup.picasso.Picasso;
 
 import java.text.DateFormat;
@@ -20,6 +25,7 @@ import java.util.Date;
 import Util.Utils;
 import data.JSONWeatherParser;
 import data.WeatherHttpClient;
+import data.LocationFinder;
 import model.Clouds;
 import model.Weather;
 
@@ -37,6 +43,13 @@ public class MainActivity extends AppCompatActivity {
     private TextView updated;
 
     Weather weather = new Weather();
+    LocationFinder locationFinder = new LocationFinder();
+    /**
+     * ATTENTION: This was auto-generated to implement the App Indexing API.
+     * See https://g.co/AppIndexing/AndroidStudio for more information.
+     */
+    private GoogleApiClient client;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,12 +70,51 @@ public class MainActivity extends AppCompatActivity {
 
         renderWeatherDate("Spokane,US");
 
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
 
-    public void renderWeatherDate(String city)
-    {
+
+    public void renderWeatherDate(String city) {
         WeatherTask weatherTask = new WeatherTask();
         weatherTask.execute(new String[]{city + "&appid=" + Utils.KEY_ID});
+    }
+
+    /**
+     * ATTENTION: This was auto-generated to implement the App Indexing API.
+     * See https://g.co/AppIndexing/AndroidStudio for more information.
+     */
+    public Action getIndexApiAction() {
+        Thing object = new Thing.Builder()
+                .setName("Main Page") // TODO: Define a title for the content shown.
+                // TODO: Make sure this auto-generated URL is correct.
+                .setUrl(Uri.parse("http://[ENTER-YOUR-URL-HERE]"))
+                .build();
+        return new Action.Builder(Action.TYPE_VIEW)
+                .setObject(object)
+                .setActionStatus(Action.STATUS_TYPE_COMPLETED)
+                .build();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client.connect();
+        AppIndex.AppIndexApi.start(client, getIndexApiAction());
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        AppIndex.AppIndexApi.end(client, getIndexApiAction());
+        client.disconnect();
     }
 
     private class DownloadImageAsyncTask extends AsyncTask<String, Void, Bitmap> {
@@ -75,11 +127,10 @@ public class MainActivity extends AppCompatActivity {
         protected Bitmap doInBackground(String... params) {
             return null;
         }
-        
+
     }
 
-    private class WeatherTask extends AsyncTask<String, Void, Weather>
-    {
+    private class WeatherTask extends AsyncTask<String, Void, Weather> {
         @Override
         protected void onPostExecute(Weather weather) {
             super.onPostExecute(weather);
@@ -93,17 +144,17 @@ public class MainActivity extends AppCompatActivity {
             //switch Fahrenheit to Celsius,and set format
             DecimalFormat decimalFormat = new DecimalFormat("#.#");//run to only one decimal
             Double tempF = weather.currentCondition.getTemperature();
-            Double tempC = tempF/10 - 17.205;
+            Double tempC = tempF / 10 - 17.205;
             String tempFormat = decimalFormat.format(tempC);
 
             cityName.setText(weather.place.getCity() + "," + weather.place.getCountry());
             temp.setText("" + tempFormat + "°C");
-            humidity.setText("Humidity: " +weather.currentCondition.getHumidity()+"%");
-            pressure.setText("Pressure: " +weather.currentCondition.getPressure()+"hPa");
-            wind.setText("Wind: "+ weather.wind.getSpeed() + "mps");
-            sunrise.setText("Sunrise: "+ sunriseDate);
+            humidity.setText("Humidity: " + weather.currentCondition.getHumidity() + "%");
+            pressure.setText("Pressure: " + weather.currentCondition.getPressure() + "hPa");
+            wind.setText("Wind: " + weather.wind.getSpeed() + "mps");
+            sunrise.setText("Sunrise: " + sunriseDate);
             sunset.setText("Sunset: " + sunsetDate);
-            description.setText("Condition: " + weather.currentCondition.getCondition()+ "(" + weather.currentCondition.getDescription()+ ")");
+            description.setText("Condition: " + weather.currentCondition.getCondition() + "(" + weather.currentCondition.getDescription() + ")");
             updated.setText("Update time: " + updateDate);
         }
 
@@ -122,8 +173,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater =getMenuInflater();
-        inflater.inflate(R.menu.main_menu,menu);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_menu, menu);
         return true;
     }
 }

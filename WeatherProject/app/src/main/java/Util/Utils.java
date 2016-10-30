@@ -7,6 +7,7 @@ import org.json.JSONObject;
  * Created by Lsy on 16/9/26.
  */
 
+
 public class Utils {
 
     public static final String BASE_URL = "http://api.openweathermap.org/data/2.5/weather?q=";
