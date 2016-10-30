@@ -1,5 +1,6 @@
 package com.example.lsy.weatherproject;
 
+import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -9,9 +10,12 @@ import android.view.MenuInflater;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.squareup.picasso.Picasso;
+
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.util.Date;
+//import java.lang.Object;
 
 import Util.Utils;
 import data.JSONWeatherParser;
@@ -40,6 +44,8 @@ public class MainActivity extends AppCompatActivity {
 
         cityName = (TextView) findViewById(R.id.cityText);
         iconView = (ImageView) findViewById(R.id.thumbnailIcon);
+        Picasso.with(this).load("http://cdn.zonarutoppuden.com/ns/peliculas-naruto-shippuden.jpg").into(iconView);
+
         temp = (TextView) findViewById(R.id.tempText);
         description = (TextView) findViewById(R.id.cloudText);
         humidity = (TextView) findViewById(R.id.humidText);
@@ -59,7 +65,20 @@ public class MainActivity extends AppCompatActivity {
         weatherTask.execute(new String[]{city + "&appid=" + Utils.KEY_ID});
     }
 
-    private class  WeatherTask extends AsyncTask<String, Void, Weather>
+    private class DownloadImageAsyncTask extends AsyncTask<String, Void, Bitmap> {
+        @Override
+        protected void onPostExecute(Bitmap bitmap) {
+            super.onPostExecute(bitmap);
+        }
+
+        @Override
+        protected Bitmap doInBackground(String... params) {
+            return null;
+        }
+        
+    }
+
+    private class WeatherTask extends AsyncTask<String, Void, Weather>
     {
         @Override
         protected void onPostExecute(Weather weather) {
