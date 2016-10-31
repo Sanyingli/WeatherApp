@@ -1,4 +1,14 @@
 <resources>
     <string name="app_name">WeatherProject</string>
     <string name="change_city">Change City</string>
+
+    <string name="days">Forecast Days: </string>
+    <string name="GPS">Use GPS Location:</string>
+
+    <string name="zipCode">Enter the ZipCode: </string>
+
+    <string name="Cel">Celsius</string>
+    <string name="Fah">Fahrenheit</string>
+    <string name="CorF">Use Celsius or Fahrenheit</string>
+
 </resources>
