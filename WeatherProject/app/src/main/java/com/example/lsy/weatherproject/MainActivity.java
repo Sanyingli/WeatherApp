@@ -1,5 +1,6 @@
 package com.example.lsy.weatherproject;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.location.Location;
@@ -8,6 +9,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -53,6 +55,13 @@ public class MainActivity extends AppCompatActivity implements LocationFinder.Lo
     private double mLongtitude;
     private double mLatitude;
 
+    private final String LOG_TAG = "MainActivity";
+
+    ProgressDialog progressDialog;
+
+    AlertDialog.Builder alertBuilder;
+    AlertDialog alertDialog;
+
     Weather weather = new Weather();
 
     /**
@@ -65,6 +74,11 @@ public class MainActivity extends AppCompatActivity implements LocationFinder.Lo
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        progressDialog = new ProgressDialog(MainActivity.this);
+        progressDialog.setTitle("title");
+        progressDialog.setMessage("tbd");
+        progressDialog.show();
 
         cityName = (TextView) findViewById(R.id.cityText);
         iconView = (ImageView) findViewById(R.id.thumbnailIcon);
@@ -81,14 +95,16 @@ public class MainActivity extends AppCompatActivity implements LocationFinder.Lo
 
         if(networkConnected()) {
 
-            getLoction();
+            progressDialog.cancel();
+
+            getLocation();
 
             renderWeatherDate("Spokane,US");
 
         }
         else
         {
-            System.out.println("No network connected, please open the connection");
+            Log.d(LOG_TAG, "no net work connection");
         }
 
 
@@ -102,7 +118,7 @@ public class MainActivity extends AppCompatActivity implements LocationFinder.Lo
 
     public void renderWeatherDate(String city) {
         WeatherTask weatherTask = new WeatherTask();
-        weatherTask.execute(new String[]{city + "&appid=" + Utils.KEY_ID});
+        weatherTask.execute(new String[]{city + Utils.KEY_ID});
     }
 
     /**
@@ -143,20 +159,27 @@ public class MainActivity extends AppCompatActivity implements LocationFinder.Lo
 
     @Override
     public void locationFound(Location location) {
-        System.out.println("HAVE FOUND LOCATION");
+        Log.d(LOG_TAG, "LOCATION FOUND");
         mLocation = location;
 
-        mLatitude = mLocation.getLatitude();
-        mLongtitude = mLocation.getLongitude();
-        System.out.println("latitude:" + mLatitude);
-        System.out.println("longitude:" + mLongtitude);
+        if(alertDialog !=null)
+        {
+            alertDialog.cancel();
+        }
+
+        if(mLocation != null) {
+            mLatitude = mLocation.getLatitude();
+            mLongtitude = mLocation.getLongitude();
+            System.out.println("latitude:" + mLatitude);
+            System.out.println("longitude:" + mLongtitude);
+        }
 
     }
 
     @Override
     public void locationNotFound(LocationFinder.FailureReason failureReason) {
 
-        System.out.println("HAVE NOT FOUND");
+        Log.d(LOG_TAG, "HAVE NOT FOUND LOCATION");
     }
 
 
@@ -217,7 +240,7 @@ public class MainActivity extends AppCompatActivity implements LocationFinder.Lo
         return networkInfo != null && networkInfo.isConnected();
     }
 
-    private void getLoction()
+    private void getLocation()
     {
         locationFinder = new LocationFinder(this,this);
         locationFinder.detectLocation();
