@@ -36,6 +36,7 @@ import data.WeatherHttpClient;
 import data.LocationFinder;
 import model.Clouds;
 import model.Weather;
+import model.latLonWeatherParams;
 
 public class MainActivity extends AppCompatActivity implements LocationFinder.LocationDetector {
 
@@ -52,7 +53,7 @@ public class MainActivity extends AppCompatActivity implements LocationFinder.Lo
 
     private LocationFinder locationFinder;
     private Location mLocation;
-    private double mLongtitude;
+    private double mLongitude;
     private double mLatitude;
 
     private final String LOG_TAG = "MainActivity";
@@ -93,13 +94,16 @@ public class MainActivity extends AppCompatActivity implements LocationFinder.Lo
         sunset = (TextView) findViewById(R.id.setText);
         updated = (TextView) findViewById(R.id.updateText);
 
+
         if(networkConnected()) {
 
             progressDialog.cancel();
 
-            getLocation();
 
-            renderWeatherDate("Spokane,US");
+            //renderWeatherDataByCity("20006");
+
+            locationFinder = new LocationFinder(this,this);
+            locationFinder.detectLocation();
 
         }
         else
@@ -116,9 +120,16 @@ public class MainActivity extends AppCompatActivity implements LocationFinder.Lo
     }
 
 
-    public void renderWeatherDate(String city) {
+    public void renderWeatherDataByCity(String city) {
         WeatherTask weatherTask = new WeatherTask();
-        weatherTask.execute(new String[]{city + Utils.KEY_ID});
+        weatherTask.execute(new String[]{city});
+    }
+
+    public void renderWeatherDataByLatLon(double lat, double lon)
+    {
+        WeatherTaskByLatLon test = new WeatherTaskByLatLon();
+        test.execute(new latLonWeatherParams(lat,lon));
+
     }
 
     /**
@@ -169,17 +180,24 @@ public class MainActivity extends AppCompatActivity implements LocationFinder.Lo
 
         if(mLocation != null) {
             mLatitude = mLocation.getLatitude();
-            mLongtitude = mLocation.getLongitude();
+            mLongitude = mLocation.getLongitude();
             System.out.println("latitude:" + mLatitude);
-            System.out.println("longitude:" + mLongtitude);
+            System.out.println("longitude:" + mLongitude);
+
         }
+        renderWeatherDataByLatLon(mLatitude,mLongitude);
+
+
 
     }
 
     @Override
     public void locationNotFound(LocationFinder.FailureReason failureReason) {
 
-        Log.d(LOG_TAG, "HAVE NOT FOUND LOCATION");
+        Log.d(LOG_TAG, "HAVE NOT FOUND LOCATION,WILL USE DEFAULT LOCATION");
+        System.out.println(failureReason);
+
+        renderWeatherDataByCity("20006");
     }
 
 
@@ -222,8 +240,53 @@ public class MainActivity extends AppCompatActivity implements LocationFinder.Lo
 
             return weather;
         }
+
     }
 
+
+    private class WeatherTaskByLatLon extends AsyncTask<latLonWeatherParams, Void, Weather> {
+        @Override
+        protected Weather doInBackground(latLonWeatherParams... params) {
+            double lat = params[0].lat;
+            double lon = params[0].lon;
+
+            String data = ((new WeatherHttpClient()).getWeatherData(lat,lon));
+
+            weather = JSONWeatherParser.getWeather(data);
+
+            //Log.v("Data: ", String.valueOf(weather.currentCondition.getTemperature()));
+
+            return weather;
+        }
+
+        @Override
+        protected void onPostExecute(Weather weather) {
+            super.onPostExecute(weather);
+
+            DateFormat df = DateFormat.getTimeInstance();
+
+            String sunriseDate = df.format(new Date(weather.place.getSunrise()));
+            String sunsetDate = df.format(new Date(weather.place.getSunset()));
+            String updateDate = df.format(new Date(weather.place.getLastupdate()));
+
+            //switch Fahrenheit to Celsius,and set format
+            DecimalFormat decimalFormat = new DecimalFormat("#.#");//run to only one decimal
+            Double tempF = weather.currentCondition.getTemperature();
+            Double tempC = tempF / 10 - 17.205;
+            String tempFormat = decimalFormat.format(tempC);
+
+            cityName.setText(weather.place.getCity() + "," + weather.place.getCountry());
+            temp.setText("" + tempFormat + "°C");
+            humidity.setText("Humidity: " + weather.currentCondition.getHumidity() + "%");
+            pressure.setText("Pressure: " + weather.currentCondition.getPressure() + "hPa");
+            wind.setText("Wind: " + weather.wind.getSpeed() + "mps");
+            sunrise.setText("Sunrise: " + sunriseDate);
+            sunset.setText("Sunset: " + sunsetDate);
+            description.setText("Condition: " + weather.currentCondition.getCondition() + "(" + weather.currentCondition.getDescription() + ")");
+            updated.setText("Update time: " + updateDate);
+        }
+
+    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -240,9 +303,4 @@ public class MainActivity extends AppCompatActivity implements LocationFinder.Lo
         return networkInfo != null && networkInfo.isConnected();
     }
 
-    private void getLocation()
-    {
-        locationFinder = new LocationFinder(this,this);
-        locationFinder.detectLocation();
-    }
 }
