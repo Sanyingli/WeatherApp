@@ -2,13 +2,31 @@
     <string name="app_name">WeatherProject</string>
     <string name="change_city">Change City</string>
 
-    <string name="days">Forecast Days: </string>
-    <string name="GPS">Use GPS Location:</string>
+    <string name="set">SETTING</string>
 
+    <string name="days">Forecast Days: </string>
+
+    <string name="GPS">Use GPS Location:</string>
     <string name="zipCode">Enter the ZipCode: </string>
+
+
+    <string name="useGPS">GPS model</string>
+    <string name="useZipCode">ZipCode model</string>
+
 
     <string name="Cel">Celsius</string>
     <string name="Fah">Fahrenheit</string>
     <string name="CorF">Use Celsius or Fahrenheit</string>
 
+    <string-array name="forecastDay">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+    </string-array>
+
+    <string name="selected">Selected</string>
+    <string name="diaTitle">Selected</string>
+    <string name="diaMessage">Selected</string>
 </resources>
