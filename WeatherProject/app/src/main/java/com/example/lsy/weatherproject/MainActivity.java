@@ -2,6 +2,7 @@ package com.example.lsy.weatherproject;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.location.Location;
 import android.location.LocationManager;
@@ -15,6 +16,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -185,7 +187,8 @@ public class MainActivity extends AppCompatActivity implements LocationFinder.Lo
             System.out.println("longitude:" + mLongitude);
 
         }
-        renderWeatherDataByLatLon(mLatitude,mLongitude);
+        //renderWeatherDataByLatLon(mLatitude,mLongitude);
+        System.out.println(weather.place.getCity());
 
 
 
@@ -198,6 +201,8 @@ public class MainActivity extends AppCompatActivity implements LocationFinder.Lo
         System.out.println(failureReason);
 
         renderWeatherDataByCity("20006");
+
+        //System.out.println(weather.place.getCity());
     }
 
 
@@ -206,11 +211,14 @@ public class MainActivity extends AppCompatActivity implements LocationFinder.Lo
         protected void onPostExecute(Weather weather) {
             super.onPostExecute(weather);
 
+            //cityName.setText(weather.place.getCity());
+/*
+
             DateFormat df = DateFormat.getTimeInstance();
 
             String sunriseDate = df.format(new Date(weather.place.getSunrise()));
             String sunsetDate = df.format(new Date(weather.place.getSunset()));
-            String updateDate = df.format(new Date(weather.place.getLastupdate()));
+            //String updateDate = df.format(new Date(weather.place.getDate()));
 
             //switch Fahrenheit to Celsius,and set format
             DecimalFormat decimalFormat = new DecimalFormat("#.#");//run to only one decimal
@@ -226,7 +234,8 @@ public class MainActivity extends AppCompatActivity implements LocationFinder.Lo
             sunrise.setText("Sunrise: " + sunriseDate);
             sunset.setText("Sunset: " + sunsetDate);
             description.setText("Condition: " + weather.currentCondition.getCondition() + "(" + weather.currentCondition.getDescription() + ")");
-            updated.setText("Update time: " + updateDate);
+            //updated.setText("Update time: " + updateDate);
+            */
         }
 
         @Override
@@ -236,7 +245,7 @@ public class MainActivity extends AppCompatActivity implements LocationFinder.Lo
 
             weather = JSONWeatherParser.getWeather(data);
 
-            //Log.v("Data: ", String.valueOf(weather.currentCondition.getTemperature()));
+            //Log.v("Data: ", String.valueOf(weather.place.getCity()));
 
             return weather;
         }
@@ -252,9 +261,9 @@ public class MainActivity extends AppCompatActivity implements LocationFinder.Lo
 
             String data = ((new WeatherHttpClient()).getWeatherData(lat,lon));
 
-            weather = JSONWeatherParser.getWeather(data);
+            //weather = JSONWeatherParser.getWeather(data);
 
-            //Log.v("Data: ", String.valueOf(weather.currentCondition.getTemperature()));
+            Log.v("Data: ", String.valueOf(weather.place.getCity()));
 
             return weather;
         }
@@ -267,7 +276,7 @@ public class MainActivity extends AppCompatActivity implements LocationFinder.Lo
 
             String sunriseDate = df.format(new Date(weather.place.getSunrise()));
             String sunsetDate = df.format(new Date(weather.place.getSunset()));
-            String updateDate = df.format(new Date(weather.place.getLastupdate()));
+            //String updateDate = df.format(new Date(weather.place.getDate()));
 
             //switch Fahrenheit to Celsius,and set format
             DecimalFormat decimalFormat = new DecimalFormat("#.#");//run to only one decimal
@@ -283,7 +292,7 @@ public class MainActivity extends AppCompatActivity implements LocationFinder.Lo
             sunrise.setText("Sunrise: " + sunriseDate);
             sunset.setText("Sunset: " + sunsetDate);
             description.setText("Condition: " + weather.currentCondition.getCondition() + "(" + weather.currentCondition.getDescription() + ")");
-            updated.setText("Update time: " + updateDate);
+            //updated.setText("Update time: " + updateDate);
         }
 
     }
@@ -292,6 +301,19 @@ public class MainActivity extends AppCompatActivity implements LocationFinder.Lo
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_menu, menu);
         return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        int id = item.getItemId();
+        if (id == R.id.setMenu)
+        {
+            Intent intent =new Intent(this, SettingActivity.class);
+            this.startActivity(intent);
+            return true;
+        }
+        return  super.onOptionsItemSelected(item);
     }
 
     private boolean networkConnected() {

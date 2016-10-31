@@ -20,7 +20,7 @@ public class WeatherHttpClient {
         InputStream inputStream = null;
 
         try {
-            connection = (HttpURLConnection) (new URL(Utils.BASE_URL +"zip="+ zip+"&units=metric"+ Utils.KEY_ID)).openConnection();
+            connection = (HttpURLConnection) (new URL(Utils.FORECAST_URL +"zip="+ zip+"&units=metric"+ Utils.KEY_ID)).openConnection();
             connection.setRequestMethod("GET");
             connection.setDoInput(true);
             connection.setDoOutput(true);
@@ -55,7 +55,7 @@ public class WeatherHttpClient {
         InputStream inputStream = null;
 
         try {
-            connection = (HttpURLConnection) (new URL(Utils.BASE_URL + "lat="+lat +"&lon="+lon+"&units=metric"+Utils.KEY_ID)).openConnection();
+            connection = (HttpURLConnection) (new URL(Utils.FORECAST_URL + "lat="+lat +"&lon="+lon+"&units=metric"+Utils.KEY_ID)).openConnection();
             connection.setRequestMethod("GET");
             connection.setDoInput(true);
             connection.setDoOutput(true);

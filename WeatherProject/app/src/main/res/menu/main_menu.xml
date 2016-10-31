@@ -4,8 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <item
-        android:id="@+id/change_cityID"
-        android:title="@string/change_city"
+        android:id="@+id/setMenu"
+        android:title="@string/set"
         app:showAsAction="always"
         />
 </menu>

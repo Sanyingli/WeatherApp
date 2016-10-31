@@ -117,7 +117,7 @@
         android:textStyle="bold"/>
 
     <Switch
-        android:id="@+id/switch1"
+        android:id="@+id/unitSwitch"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignBottom="@+id/unitText"
@@ -139,7 +139,7 @@
         android:id="@+id/button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:onClick="@string/con"
+        android:onClick="CONFIRM"
         android:text="CONFIRM"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"

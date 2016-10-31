@@ -11,7 +11,7 @@ public class Place {
     private long sunrise;
     private String country;
     private String city;
-    private long lastupdate;
+    private String date;
 
     public float getLon() {
         return lon;
@@ -61,11 +61,11 @@ public class Place {
         this.city = city;
     }
 
-    public long getLastupdate() {
-        return lastupdate;
+    public String getDate() {
+        return date;
     }
 
-    public void setLastupdate(long lastupdate) {
-        this.lastupdate = lastupdate;
+    public void setDate(String date) {
+        this.date = date;
     }
 }

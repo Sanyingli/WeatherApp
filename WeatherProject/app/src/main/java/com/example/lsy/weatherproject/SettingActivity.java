@@ -1,6 +1,7 @@
 package com.example.lsy.weatherproject;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -19,6 +20,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class SettingActivity extends AppCompatActivity {
+
 
 
 
@@ -65,7 +67,7 @@ public class SettingActivity extends AppCompatActivity {
         inputZipText.setEnabled(settings.getBoolean("type",true));
         inputZipText.setText(settings.getString("ZipCode", "20006"));
 
-        unitSwitch = (Switch) findViewById(R.id.switch1);
+        unitSwitch = (Switch) findViewById(R.id.unitSwitch);
         unitSwitch.setChecked(settings.getBoolean("tempUnit", true));
         unitSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
