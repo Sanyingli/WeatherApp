@@ -28,4 +28,14 @@
     <string name="selected">Selected</string>
     <string name="diaTitle">Selected</string>
     <string name="diaMessage">Selected</string>
+
+
+    <string name="city">City</string>
+    <string name="temp">Temperature: </string>
+    <string name="date">Date: </string>
+    <string name="des">Weather: </string>
+    <string name="windSpeed">Wind Speed: </string>
+    <string name="humidity">Humidity: </string>
+    <string name="pressure">Pressure: </string>
+
 </resources>

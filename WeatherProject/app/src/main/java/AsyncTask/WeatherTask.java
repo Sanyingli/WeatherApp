@@ -1,5 +1,6 @@
 package AsyncTask;
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.renderscript.Sampler;
 import android.util.Log;
@@ -14,7 +15,15 @@ import model.Weather;
 
 public class WeatherTask extends AsyncTask<String, Void, String> {
 
-    //Weather weather = new Weather();
+
+    private Context mContext;
+    //private WeatherTask
+
+    public WeatherTask(Context context)
+    {
+        mContext=context;
+    }
+
 
         @Override
         protected void onPostExecute(String string) {

@@ -1,11 +1,21 @@
 package data;
 
+import android.graphics.Bitmap;
 import android.util.Log;
+
+import com.example.lsy.weatherproject.MainActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
+
+import AsyncTask.WeatherImageTask;
+import AsyncTask.WeatherTask;
+import AsyncTask.WeatherTaskByLatLon;
 import Util.Utils;
 import model.Place;
 import model.Weather;
@@ -16,7 +26,7 @@ import model.Weather;
 
 public class JSONWeatherParser {
 
-    public static Weather getWeather(String data , int forecastDate) {
+    public Weather getWeather(String data , int forecastDate) {
         Weather weather = new Weather();
 
 //        weather.place.setCity("test city name");
@@ -97,12 +107,107 @@ public class JSONWeatherParser {
 
             } catch (JSONException e) {
                 e.printStackTrace();
-
-                System.out.println();
-
                 return null;
 
             }
         }
+
+    public ArrayList<String> getForecastWeatherFromZipCode(ArrayList<String> arrayList, String zipCode, int forecastDate, boolean tempUnit) {
+
+        ArrayList<String> daysWeather = new ArrayList<>();
+
+        Weather weather = new Weather();
+        MainActivity weatherActivity = new MainActivity();
+        WeatherTask weatherTask = new WeatherTask(weatherActivity.getBaseContext());
+
+        String dataWea= null;
+
+
+        try {
+            dataWea = weatherTask.execute(zipCode).get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+
+        for(int i=1;i<forecastDate+1;i++){
+            weather = this.getWeather(dataWea,i);
+            String each;
+            each = this.getItemsText(arrayList,weather,tempUnit).get(0)
+                    + this.getItemsText(arrayList,weather,tempUnit).get(1)
+                    + this.getItemsText(arrayList,weather,tempUnit).get(2)
+                    +this.getItemsText(arrayList,weather,tempUnit).get(3)
+                    +this.getItemsText(arrayList,weather,tempUnit).get(4)
+                    + this.getItemsText(arrayList,weather,tempUnit).get(5);
+
+            daysWeather.add(i-1,each);
+        }
+        return daysWeather;
+    }
+
+    public ArrayList<String> getItemsText(ArrayList<String> arrayList, Weather weather, boolean tempUnit){
+
+        ArrayList<String> itemsEach = new ArrayList<>();
+        itemsEach.add(weather.place.getDate() + "\n");
+
+        DecimalFormat decimalFormat = new DecimalFormat("#.#");
+        double tempResult;
+        if (tempUnit) {
+            tempResult = weather.currentCondition.getTemperature();
+            String tempFormat = decimalFormat.format(tempResult);
+            itemsEach.add(arrayList.get(0) + tempFormat+ "°C" + "\n");
+        } else {
+            tempResult = (weather.currentCondition.getTemperature() * 9 / 5) + 32;
+            String tempFormat = decimalFormat.format(tempResult);
+            itemsEach.add(arrayList.get(0) + tempFormat+ "°F" + "\n");
+        }
+
+        itemsEach.add(arrayList.get(1) + weather.currentCondition.getDescription() + "\n");
+        itemsEach.add(arrayList.get(3) + weather.currentCondition.getHumidity()+ "%" + "\n");
+        itemsEach.add(arrayList.get(4) + weather.currentCondition.getPressure()+ "hpa" + "\n");
+        itemsEach.add(arrayList.get(2) + weather.wind.getSpeed() + "m/s" + "\n");
+
+        return itemsEach;
+    }
+
+    public ArrayList<String> getImageViewFromZipCode(String zipCode, int forecastDate) {
+
+        ArrayList<String> daysIcon = new ArrayList<>();
+
+        String imageURL = null;
+
+        Weather weather = new Weather();
+        MainActivity weatherActivity = new MainActivity();
+        WeatherTask weatherTask = new WeatherTask(weatherActivity.getBaseContext());
+
+        String dataWea = null;
+
+        try {
+            dataWea = weatherTask.execute(zipCode).get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+
+        for(int i=1;i<forecastDate+1;i++){
+            weather = this.getWeather(dataWea, i);
+
+            try {
+                WeatherImageTask imageAsyncTask = new WeatherImageTask(weatherActivity.getBaseContext());
+                imageURL=imageAsyncTask.execute(weather.currentCondition.getIcon()).get();
+
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            }
+
+            daysIcon.add(i-1,imageURL);
+        }
+
+        return daysIcon;
+    }
 
 }

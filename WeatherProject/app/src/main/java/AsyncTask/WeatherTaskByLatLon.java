@@ -1,5 +1,6 @@
 package AsyncTask;
 
+import android.content.Context;
 import android.os.AsyncTask;
 
 import data.WeatherHttpClient;
@@ -12,6 +13,12 @@ public class WeatherTaskByLatLon extends AsyncTask<WeatherLatLonParams, Void, St
 
     //Weather weather = new Weather();
 
+    private Context mContext;
+
+    public WeatherTaskByLatLon (Context context)
+    {
+        mContext=context;
+    }
     @Override
     protected void onPostExecute(String string) {
         super.onPostExecute(string);
