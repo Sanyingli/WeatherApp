@@ -3,13 +3,10 @@ package com.example.lsy.weatherproject;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.location.Location;
-import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -24,21 +21,15 @@ import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.appindexing.Thing;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.PendingResult;
 import com.squareup.picasso.Picasso;
 
-import java.text.DateFormat;
-import java.text.DecimalFormat;
-import java.util.Date;
+import java.util.concurrent.ExecutionException;
 //import java.lang.Object;
 
-import Util.Utils;
 import data.JSONWeatherParser;
-import data.WeatherHttpClient;
 import data.LocationFinder;
-import model.Clouds;
 import model.Weather;
-import model.latLonWeatherParams;
+import AsyncTask.WeatherTask;
 
 public class MainActivity extends AppCompatActivity implements LocationFinder.LocationDetector {
 
@@ -65,7 +56,7 @@ public class MainActivity extends AppCompatActivity implements LocationFinder.Lo
     AlertDialog.Builder alertBuilder;
     AlertDialog alertDialog;
 
-    Weather weather = new Weather();
+    Weather mWeather = new Weather();
 
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
@@ -122,17 +113,26 @@ public class MainActivity extends AppCompatActivity implements LocationFinder.Lo
     }
 
 
-    public void renderWeatherDataByCity(String city) {
+    public void renderWeatherDataByCity(String city) throws ExecutionException, InterruptedException {
+        String temp;
         WeatherTask weatherTask = new WeatherTask();
-        weatherTask.execute(new String[]{city});
+        temp= weatherTask.execute(new String(city)).get();
+
+        mWeather = JSONWeatherParser.getWeather(temp,1);
+
+
+
+        System.out.println(mWeather.place.getCity());
     }
 
+/*
     public void renderWeatherDataByLatLon(double lat, double lon)
     {
-        WeatherTaskByLatLon test = new WeatherTaskByLatLon();
+        WeatherTask test = new WeatherTask();
         test.execute(new latLonWeatherParams(lat,lon));
 
     }
+    */
 
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
@@ -187,8 +187,15 @@ public class MainActivity extends AppCompatActivity implements LocationFinder.Lo
             System.out.println("longitude:" + mLongitude);
 
         }
-        //renderWeatherDataByLatLon(mLatitude,mLongitude);
-        System.out.println(weather.place.getCity());
+        try {
+            renderWeatherDataByCity("20006");
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        //System.out.println(weather.place.getCity());
+        //System.out.println(mWeather.place.getCity()+ "by MainActivity");
 
 
 
@@ -200,25 +207,30 @@ public class MainActivity extends AppCompatActivity implements LocationFinder.Lo
         Log.d(LOG_TAG, "HAVE NOT FOUND LOCATION,WILL USE DEFAULT LOCATION");
         System.out.println(failureReason);
 
-        renderWeatherDataByCity("20006");
+        System.out.println("run render");
+        try {
+            renderWeatherDataByCity("20006");
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         //System.out.println(weather.place.getCity());
     }
-
+/*
 
     private class WeatherTask extends AsyncTask<String, Void, Weather> {
         @Override
         protected void onPostExecute(Weather weather) {
             super.onPostExecute(weather);
 
-            //cityName.setText(weather.place.getCity());
-/*
 
             DateFormat df = DateFormat.getTimeInstance();
 
             String sunriseDate = df.format(new Date(weather.place.getSunrise()));
             String sunsetDate = df.format(new Date(weather.place.getSunset()));
-            //String updateDate = df.format(new Date(weather.place.getDate()));
+            String date = weather.place.getDate();
 
             //switch Fahrenheit to Celsius,and set format
             DecimalFormat decimalFormat = new DecimalFormat("#.#");//run to only one decimal
@@ -234,8 +246,8 @@ public class MainActivity extends AppCompatActivity implements LocationFinder.Lo
             sunrise.setText("Sunrise: " + sunriseDate);
             sunset.setText("Sunset: " + sunsetDate);
             description.setText("Condition: " + weather.currentCondition.getCondition() + "(" + weather.currentCondition.getDescription() + ")");
-            //updated.setText("Update time: " + updateDate);
-            */
+            updated.setText("Update time: " + date);
+
         }
 
         @Override
@@ -243,7 +255,7 @@ public class MainActivity extends AppCompatActivity implements LocationFinder.Lo
 
             String data = ((new WeatherHttpClient()).getWeatherData(params[0]));
 
-            weather = JSONWeatherParser.getWeather(data);
+            weather = JSONWeatherParser.getWeather(data,1);
 
             //Log.v("Data: ", String.valueOf(weather.place.getCity()));
 
@@ -261,7 +273,7 @@ public class MainActivity extends AppCompatActivity implements LocationFinder.Lo
 
             String data = ((new WeatherHttpClient()).getWeatherData(lat,lon));
 
-            //weather = JSONWeatherParser.getWeather(data);
+            weather = JSONWeatherParser.getWeather(data,1);
 
             Log.v("Data: ", String.valueOf(weather.place.getCity()));
 
@@ -276,7 +288,7 @@ public class MainActivity extends AppCompatActivity implements LocationFinder.Lo
 
             String sunriseDate = df.format(new Date(weather.place.getSunrise()));
             String sunsetDate = df.format(new Date(weather.place.getSunset()));
-            //String updateDate = df.format(new Date(weather.place.getDate()));
+            String date = weather.place.getDate();
 
             //switch Fahrenheit to Celsius,and set format
             DecimalFormat decimalFormat = new DecimalFormat("#.#");//run to only one decimal
@@ -292,10 +304,14 @@ public class MainActivity extends AppCompatActivity implements LocationFinder.Lo
             sunrise.setText("Sunrise: " + sunriseDate);
             sunset.setText("Sunset: " + sunsetDate);
             description.setText("Condition: " + weather.currentCondition.getCondition() + "(" + weather.currentCondition.getDescription() + ")");
-            //updated.setText("Update time: " + updateDate);
+            updated.setText("Update time: " + date);
         }
 
     }
+
+    */
+
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();

@@ -16,7 +16,7 @@ import model.Weather;
 
 public class JSONWeatherParser {
 
-    public static Weather getWeather(String data /*, int forecastDate*/) {
+    public static Weather getWeather(String data , int forecastDate) {
         Weather weather = new Weather();
 
 //        weather.place.setCity("test city name");
@@ -41,43 +41,35 @@ public class JSONWeatherParser {
 
                 //get the city obj
                 JSONObject cityObj = Utils.getObject("city", jsonObject);
-                if (cityObj != null) {
-                    System.out.println("cityObj not null");
-                    System.out.println(String.valueOf(cityObj));
+                place.setCity(Utils.getString("name",cityObj));
 
-                    String test = Utils.getString("name", cityObj);
-                    System.out.println(test);
-                    place.setCity(test);
-                }
-                else
-                {
-                    System.out.println("cityObj is null");
-                }
-
-                weather.place = place;
-                //JSONObject coordObj = Utils.getObject("coord", cityObj);
-               // weather.place.setLat(Utils.getFloat("lat", coordObj));
-                //weather.place.setLon(Utils.getFloat("lon", coordObj));
+                JSONObject coordObj = Utils.getObject("coord", cityObj);
+                place.setLat(Utils.getFloat("lat", coordObj));
+                place.setLon(Utils.getFloat("lon", coordObj));
 
 
-               //weather.place.setCountry(Utils.getString("country", jsonObject));
+                place.setCountry(Utils.getString("country", cityObj));
 
-                /*
+
+                //System.out.println(weather.place.getCity());
+
                 //get the forecast info list
                 JSONArray jsonArray2 = jsonObject.getJSONArray("list");
 
                 JSONObject jsonList = jsonArray2.getJSONObject((forecastDate - 1) * 8);
 
+                System.out.println(String.valueOf(jsonList));
+
                 //get the main object
 
-                JSONObject mainObj = Utils.getObject("main", jsonList);
+                JSONObject mainObj = Utils.getObject("main",jsonList);
                 weather.currentCondition.setHumidity(Utils.getInt("humidity", mainObj));
                 weather.currentCondition.setPressure(Utils.getInt("pressure", mainObj));
                 weather.currentCondition.setMinTemp(Utils.getFloat("temp_min", mainObj));
                 weather.currentCondition.setMaxTemp(Utils.getFloat("temp_max", mainObj));
                 weather.currentCondition.setTemperature(Utils.getDouble("temp", mainObj));
 
-
+///*
                 //get the weather info
                 JSONArray jsonArray = jsonList.getJSONArray("weather");
                 JSONObject jsonWeather = jsonArray.getJSONObject(0);
@@ -96,10 +88,10 @@ public class JSONWeatherParser {
                 weather.clouds.setPrecipitation(Utils.getInt("all", cloudsObj));
 
                 //get the date
-                JSONObject dateObj = Utils.getObject("dt_txt", jsonList);
-                weather.place.setDate(Utils.getString("dt_txt", dateObj));
+                place.setDate(Utils.getString("dt_txt", jsonList));
 
-*/
+                weather.place = place;
+
                 return weather;
 
 
@@ -109,6 +101,7 @@ public class JSONWeatherParser {
                 System.out.println();
 
                 return null;
+
             }
         }
 

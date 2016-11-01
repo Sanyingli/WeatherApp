@@ -152,7 +152,7 @@ public class SettingActivity extends AppCompatActivity {
                     if (inputZipText.isEnabled()) {
                         editor.putString("zipCode", inputZipText.getText().toString());
                     }
-                    editor.commit();
+                    editor.apply();
                     Intent intent = new Intent(SettingActivity.this, MainActivity.class);
                     startActivity(intent);
 
