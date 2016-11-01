@@ -20,4 +20,11 @@
     <string name="useZipCode">邮编</string>
     <string name="windSpeed">风速</string>
     <string name="zipCode">输入邮编</string>
+    <string-array name="forecastDay">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+    </string-array>
 </resources>
