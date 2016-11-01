@@ -77,6 +77,7 @@ public class WeatherAdapter extends BaseAdapter {
         //iconView.setImageBitmap(weatherAndImge.getDayImage());
         dWeather.setText(weatherAndImge.getDayWeather());
 
+
         return convertView;
     }
 }

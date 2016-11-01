@@ -2,8 +2,10 @@ package data;
 
 import android.graphics.Bitmap;
 import android.util.Log;
+import android.widget.TextView;
 
 import com.example.lsy.weatherproject.MainActivity;
+import com.example.lsy.weatherproject.R;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -14,6 +16,7 @@ import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 
 import AsyncTask.WeatherImageTask;
+import AsyncTask.WeatherLatLonParams;
 import AsyncTask.WeatherTask;
 import AsyncTask.WeatherTaskByLatLon;
 import Util.Utils;
@@ -207,7 +210,87 @@ public class JSONWeatherParser {
             daysIcon.add(i-1,imageURL);
         }
 
+
         return daysIcon;
     }
+
+    public ArrayList<String> getForecastWeatherFromLatandLon(ArrayList<String> arrayList, double lat, double lon , int forecastDate, boolean tempUnit) {
+
+        ArrayList<String> daysWeather = new ArrayList<>();
+
+        Weather weather = new Weather();
+        MainActivity weatherActivity = new MainActivity();
+        WeatherTaskByLatLon weatherTaskByLatLon = new WeatherTaskByLatLon(weatherActivity.getBaseContext());
+
+        String dataWea= null;
+
+         WeatherLatLonParams params = new WeatherLatLonParams(lat,lon);
+
+
+        try {
+            dataWea = weatherTaskByLatLon.execute(params).get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+
+        for(int i=1;i<forecastDate+1;i++){
+            weather = this.getWeather(dataWea,i);
+            String each;
+            each = this.getItemsText(arrayList,weather,tempUnit).get(0)
+                    + this.getItemsText(arrayList,weather,tempUnit).get(1)
+                    + this.getItemsText(arrayList,weather,tempUnit).get(2)
+                    +this.getItemsText(arrayList,weather,tempUnit).get(3)
+                    +this.getItemsText(arrayList,weather,tempUnit).get(4)
+                    + this.getItemsText(arrayList,weather,tempUnit).get(5);
+
+            daysWeather.add(i-1,each);
+        }
+        return daysWeather;
+    }
+
+    public ArrayList<String> getImageViewFromLatandLon(double lat,double lon, int forecastDate) {
+
+        ArrayList<String> daysIcon = new ArrayList<>();
+
+        String imageURL = null;
+
+        Weather weather = new Weather();
+        MainActivity weatherActivity = new MainActivity();
+        WeatherTaskByLatLon weatherTaskByLatLon = new WeatherTaskByLatLon(weatherActivity.getBaseContext());
+
+        String dataWea= null;
+
+        WeatherLatLonParams params = new WeatherLatLonParams(lat,lon);
+
+
+        try {
+            dataWea = weatherTaskByLatLon.execute(params).get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+
+        for(int i=1;i<forecastDate+1;i++){
+            weather = this.getWeather(dataWea, i);
+
+            try {
+                WeatherImageTask imageAsyncTask = new WeatherImageTask(weatherActivity.getBaseContext());
+                imageURL=imageAsyncTask.execute(weather.currentCondition.getIcon()).get();
+
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            }
+
+            daysIcon.add(i-1,imageURL);
+        }
+
+        return daysIcon;
+    }
+
 
 }

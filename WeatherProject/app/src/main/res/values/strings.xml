@@ -26,8 +26,8 @@
     </string-array>
 
     <string name="selected">Selected</string>
-    <string name="diaTitle">Selected</string>
-    <string name="diaMessage">Selected</string>
+    <string name="diaTitle">Have Selected</string>
+    <string name="diaMessage">Sending message</string>
 
 
     <string name="city">City</string>

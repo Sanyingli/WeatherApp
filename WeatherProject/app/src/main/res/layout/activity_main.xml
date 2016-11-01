@@ -9,13 +9,12 @@ android:paddingLeft="@dimen/activity_horizontal_margin"
 android:paddingRight="@dimen/activity_horizontal_margin"
 android:paddingTop="@dimen/activity_vertical_margin"
 
-android:background="#ff1ba1ee"
+android:background="@color/background"
 tools:context="com.example.lsy.weatherproject.MainActivity">
 
 <TextView
     android:id="@+id/cityText"
     android:textColor="#fff"
-    android:text="Washington DC"
     android:layout_centerHorizontal="true"
     android:textSize="18sp"
     android:textStyle="bold"

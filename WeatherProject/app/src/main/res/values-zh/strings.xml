@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">天气项目</string>
+    <string name="Cel">摄氏度</string>
+    <string name="CorF">选择摄氏度或华氏度</string>
+    <string name="Fah">华氏度</string>
+    <string name="GPS">使用定位</string>
+    <string name="city">城市</string>
+    <string name="date">日期</string>
+    <string name="days">预告日数</string>
+    <string name="des">天气</string>
+    <string name="diaMessage">正在传送</string>
+    <string name="diaTitle">选择成功</string>
+    <string name="humidity">湿度</string>
+    <string name="pressure">气压</string>
+    <string name="selected">已选择</string>
+    <string name="set">设置</string>
+    <string name="temp">温度</string>
+    <string name="useGPS">定位模式</string>
+    <string name="useZipCode">邮编</string>
+    <string name="windSpeed">风速</string>
+    <string name="zipCode">输入邮编</string>
+</resources>

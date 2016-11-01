@@ -65,7 +65,7 @@ public class SettingActivity extends AppCompatActivity {
 
         inputZipText = (EditText) findViewById(R.id.inputZipText);
         inputZipText.setEnabled(settings.getBoolean("type",true));
-        inputZipText.setText(settings.getString("ZipCode", "20006"));
+        inputZipText.setText(settings.getString("zipCode", "20006"));
 
         unitSwitch = (Switch) findViewById(R.id.unitSwitch);
         unitSwitch.setChecked(settings.getBoolean("tempUnit", true));

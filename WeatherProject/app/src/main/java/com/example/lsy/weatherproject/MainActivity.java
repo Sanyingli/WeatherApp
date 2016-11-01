@@ -30,6 +30,8 @@ import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 //import java.lang.Object;
 
+import AsyncTask.WeatherLatLonParams;
+import AsyncTask.WeatherTaskByLatLon;
 import adapter.WeatherAdapter;
 import data.JSONWeatherParser;
 import data.LocationFinder;
@@ -47,11 +49,12 @@ public class MainActivity extends AppCompatActivity implements LocationFinder.Lo
 
     JSONWeatherParser jsonWeatherParser = new JSONWeatherParser();
 
-    int forecastDate =1;
+    int forecastDate;
     boolean tempUnit;
     boolean type;
 
     WeatherTask weatherTask = new WeatherTask(getBaseContext());
+    WeatherTaskByLatLon weatherTaskByLatLon = new WeatherTaskByLatLon(getBaseContext());
 
 
     private LocationFinder locationFinder;
@@ -62,13 +65,13 @@ public class MainActivity extends AppCompatActivity implements LocationFinder.Lo
     ArrayList<String> weatherList;
     ArrayList<String> imageList;
 
+    String tempData = null;
+
     private final String LOG_TAG = "MainActivity";
 
 
     ProgressDialog progressDialog;
 
-    AlertDialog.Builder alertBuilder;
-    AlertDialog alertDialog;
 
     Weather mWeather = new Weather();
 
@@ -84,8 +87,8 @@ public class MainActivity extends AppCompatActivity implements LocationFinder.Lo
         setContentView(R.layout.activity_main);
 
         progressDialog = new ProgressDialog(MainActivity.this);
-        progressDialog.setTitle("title");
-        progressDialog.setMessage("tbd");
+        progressDialog.setTitle("hint");
+        progressDialog.setMessage("APP is loading");
         progressDialog.show();
 
         cityName = (TextView) findViewById(R.id.cityText);
@@ -100,37 +103,50 @@ public class MainActivity extends AppCompatActivity implements LocationFinder.Lo
         items.add(getString(R.string.pressure));
 
 
-
-        cityName = (TextView) findViewById(R.id.cityText);
-
-
         //Get info from the SettingsActivity;
         SharedPreferences settings = getSharedPreferences("PrefFile", 0);
-        String zipCode = settings.getString("ZipCode", "20002");
+        String zipCode = settings.getString("zipCode", "20006");
         forecastDate = settings.getInt("forecastDate", 3);
         tempUnit = settings.getBoolean("tempUnit", true);
         type = settings.getBoolean("type",false);
 
 
+        locationFinder = new LocationFinder(this,this);
+        locationFinder.detectLocation();
+
+
         if(networkConnected()) {
 
-            progressDialog.cancel();
+            if(type==true) {
 
-            //weatherList = jsonWeatherParser.getForecastWeatherFromZipCode(items, "20006", 2, false);
-            weatherList = jsonWeatherParser.getForecastWeatherFromZipCode(items, "20006", forecastDate, tempUnit);
-            imageList = jsonWeatherParser.getImageViewFromZipCode("20006", forecastDate);
-
-            mListView = (ListView) findViewById(R.id.weather_list_view);
-
-            WeatherAdapter weatherAdapter = new WeatherAdapter(getBaseContext(), weatherList, imageList);
-
-            mListView.setAdapter(weatherAdapter);
+                progressDialog.cancel();
 
 
-            //renderWeatherDataByCity("20006");
+                weatherList = jsonWeatherParser.getForecastWeatherFromZipCode(items, zipCode, forecastDate, tempUnit);
+                imageList = jsonWeatherParser.getImageViewFromZipCode(zipCode, forecastDate);
 
-            locationFinder = new LocationFinder(this,this);
-            locationFinder.detectLocation();
+                mListView = (ListView) findViewById(R.id.weather_list_view);
+
+                WeatherAdapter weatherAdapter = new WeatherAdapter(getBaseContext(), weatherList, imageList);
+
+                mListView.setAdapter(weatherAdapter);
+
+                try {
+                    tempData = weatherTask.execute(zipCode).get();
+
+                    mWeather = jsonWeatherParser.getWeather(tempData,1);
+
+                    cityName.setText(mWeather.place.getCity()+", "+mWeather.place.getCountry());
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                }
+
+
+                //renderWeatherDataByCity("20006");
+
+            }
 
         }
         else
@@ -222,9 +238,9 @@ public class MainActivity extends AppCompatActivity implements LocationFinder.Lo
         Log.d(LOG_TAG, "LOCATION FOUND");
         mLocation = location;
 
-        if(alertDialog !=null)
+        if(progressDialog !=null)
         {
-            alertDialog.cancel();
+            progressDialog.cancel();
         }
 
         if(mLocation != null) {
@@ -235,12 +251,28 @@ public class MainActivity extends AppCompatActivity implements LocationFinder.Lo
 
         }
             //renderWeatherDataByCity("20006");
-            weatherList = jsonWeatherParser.getForecastWeatherFromZipCode(items, "20006", forecastDate, tempUnit);
+            weatherList = jsonWeatherParser.getForecastWeatherFromLatandLon(items, mLatitude,mLongitude, forecastDate, tempUnit);
+            imageList = jsonWeatherParser.getImageViewFromLatandLon(mLatitude,mLongitude, forecastDate);
 
             mListView = (ListView) findViewById(R.id.weather_list_view);
+
             WeatherAdapter weatherAdapter = new WeatherAdapter(getBaseContext(), weatherList, imageList);
 
             mListView.setAdapter(weatherAdapter);
+
+        try {
+            WeatherLatLonParams temp = new WeatherLatLonParams(mLatitude,mLongitude);
+            tempData = weatherTaskByLatLon.execute(temp).get();
+
+            mWeather = jsonWeatherParser.getWeather(tempData,1);
+
+            cityName.setText(mWeather.place.getCity()+", "+mWeather.place.getCountry());
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+
 
         }
 
@@ -251,18 +283,35 @@ public class MainActivity extends AppCompatActivity implements LocationFinder.Lo
     public void locationNotFound(LocationFinder.FailureReason failureReason) {
 
         Log.d(LOG_TAG, "HAVE NOT FOUND LOCATION,WILL USE DEFAULT LOCATION");
-        System.out.println(failureReason);
-
-        System.out.println("run render");
-        try {
-            renderWeatherDataByCity("20006");
-
-
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        if(progressDialog !=null)
+        {
+            progressDialog.cancel();
         }
+
+        if(type ==false)
+        {
+            weatherList = jsonWeatherParser.getForecastWeatherFromZipCode(items, "20006", forecastDate, tempUnit);
+            imageList = jsonWeatherParser.getImageViewFromZipCode("20006", forecastDate);
+
+            mListView = (ListView) findViewById(R.id.weather_list_view);
+
+            WeatherAdapter weatherAdapter = new WeatherAdapter(getBaseContext(), weatherList, imageList);
+
+            mListView.setAdapter(weatherAdapter);
+
+            try {
+                tempData = weatherTask.execute("20006").get();
+
+                mWeather = jsonWeatherParser.getWeather(tempData,1);
+
+                cityName.setText(mWeather.place.getCity()+", "+mWeather.place.getCountry());
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            }
+        }
+
 
         //System.out.println(weather.place.getCity());
     }
